@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formulari Temps</title>
+  </head>
+  <body>
+    <h1>Formulari de Consulta el temps meteorològic</h1>
+    <form id="formulari" action="" method="get" target="_blank">
+      <input type="text" id="city" name="city" placeholder="City" />
+      <br />
+      <input type="text" id="zip_code" name="zip_code" placeholder="Zip Code" />
+      <br />
+      <input type="text" id="country" name="country" placeholder="Country" />
+      <br />
+      <input type="submit" value="Enviar" />
+    </form>
+
+    <div id="weatherInfo" style="margin-top: 20px;">
+      <!-- La informació del temps es mostrarà aquí (Ho insereixo amb el codi JS) -->
+    </div>
+
+    <script>
+      async function getWeatherInfo(cityName) {
+        
+        try {
+          const apiKey = 'c5fc1560e0874a7ea36165402241111';
+          // Obtenir informació actual i previsió
+          const currentResponse = await fetch(
+            `http://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${cityName}&aqi=no`
+          );
+
+          const forecastResponse = await fetch(
+            `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${cityName}&days=2&aqi=no`
+          );
+
+          if (!currentResponse.ok || !forecastResponse.ok) {
+            throw new Error('Error en obtenir la informació meteorològica');
+          }
+
+          const currentData = await currentResponse.json();
+          const forecastData = await forecastResponse.json();
+
+          return {
+            current: currentData,
+            forecast: forecastData.forecast.forecastday[1],
+          };
+        } catch (error) {
+          console.error('Error detectat --> ' + error);
+          return null;
+        }
+      }
+
+      async function validateForm(event) {
+        event.preventDefault();
+
+        const city = document.getElementById('city').value;
+
+        if (city === '') {
+          alert("Has d'introduir la ciutat!");
+          return;
+        }
+
+        const weatherInfo = await getWeatherInfo(city);
+
+        if (weatherInfo) {
+          displayWeatherInfo(weatherInfo);
+        } else {
+          alert('No s\'ha pogut obtenir informació del temps.');
+        }
+      }
+
+      function displayWeatherInfo({ current, forecast }) {
+        const weatherDiv = document.getElementById('weatherInfo');
+        // Inserim les dades trobades...
+        weatherDiv.innerHTML = `
+          <h2>Informació meteorològica</h2>
+          <div>
+            <h3>Actual:</h3>
+            <p><strong>Temperatura:</strong> ${current.current.temp_c}°C</p>
+            <p><strong>Descripció:</strong> ${current.current.condition.text}</p>
+            <img src="${current.current.condition.icon}" alt="Icona del temps actual" />
+          </div>
+          <div>
+            <h3>Demà:</h3>
+            <p><strong>Temperatura prevista:</strong> Max ${forecast.day.maxtemp_c}°C, Min ${forecast.day.mintemp_c}°C</p>
+            <p><strong>Descripció:</strong> ${forecast.day.condition.text}</p>
+            <img src="${forecast.day.condition.icon}" alt="Icona del temps previst" />
+          </div>
+        `;
+      }
+
+      document
+        .getElementById('formulari')
+        .addEventListener('submit', validateForm);
+    </script>
+  </body>
+</html>

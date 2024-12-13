@@ -4,34 +4,159 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exemples de Formulari</title>
-    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="script.js"></script>
   </head>
-  <body>
+  <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <form
       id="formulari"
       action="https://www.google.com/search"
       method="get"
       target="_blank"
+      class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md"
     >
-      >
-      <input type="text" id="nif" name="q" placeholder="NIF" required />
-      <input
-        type="email"
-        id="email"
-        name="email"
-        placeholder="Email"
-        required
-      />
-      <input type="submit" value="Cercar" />
+      <h2 class="text-xl font-bold mb-4 text-gray-700">Registra't</h2>
+      <div class="mb-4">
+        <input
+          type="text"
+          id="nif"
+          name="q"
+          placeholder="NIF"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      <div class="mb-4">
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Email"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      <div class="mb-4">
+        <input
+          type="text"
+          id="firstname"
+          name="fn"
+          placeholder="First Name"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      <div class="mb-4">
+        <input
+          type="text"
+          id="lastname"
+          name="fn"
+          placeholder="Last Name"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      <div class="mb-4">
+        <input
+          type="password"
+          id="password"
+          name="psw"
+          placeholder="Password"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      <div class="mb-4">
+        <input
+          type="date"
+          id="age"
+          name="age"
+          class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+        />
+      </div>
+      <div class="mb-4 flex items-center">
+        <input
+          type="checkbox"
+          id="terms"
+          name="terms"
+          class="mr-2 leading-tight"
+        />
+        <label for="terms" class="text-gray-700"
+          >Accepto els termes i condicions</label
+        >
+      </div>
+      <div class="flex items-center justify-between">
+        <input
+          type="submit"
+          value="Cercar"
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        />
+      </div>
     </form>
     <script>
+      // Validar que els camps estan omplerts
       function validateForm(event) {
-        if (document.getElementById('nif').value === '') {
-          alert("Has d'introduir el NIF");
+        if (
+          !validate(document.getElementById('nif').value, /^[0-9A-Za-z]{1,10}$/)
+        ) {
+          alert('El NIF no és vàlid');
+          event.preventDefault();
+        }
+        if (
+          !validate(
+            document.getElementById('email').value,
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+          )
+        ) {
+          alert('El email no és vàlid ');
+          event.preventDefault();
+        }
+        if (document.getElementById('firstname').value === '') {
+          alert("Has d'introduir el Nom");
+          event.preventDefault();
+        }
+        if (document.getElementById('lastname').value === '') {
+          alert("Has d'introduir el Cognom");
+          event.preventDefault();
+        }
+        if (
+          !validate(document.getElementById('password').value, /^[A-Z]{6}$/)
+        ) {
+          alert('La contrasenya ha de tindre minim 6 caràcters');
+          event.preventDefault();
+        }
+
+        if (!isAdult(document.getElementById('age').value)) {
+          alert("Has de ser major d'edat per registrar-te.");
+          event.preventDefault();
+        }
+
+        if (!document.getElementById('terms').checked) {
+          alert("Has d'acceptar els termes i condicions.");
           event.preventDefault();
         }
       }
+
+      function validate(element, expressio) {
+        //Expressió regular per filtrar la pws per 6 caracters
+        return expressio.test(element);
+      }
+
+      function isAdult(dateOfBirth) {
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDifference = today.getMonth() - birthDate.getMonth();
+
+        // Ajustar l'edat si el mes o dia actual és abans del naixement
+        // Si el mes actual és anterior al mes de naixement
+        if (
+          monthDifference < 0 ||
+          // O si estem al mateix mes però el dia actual és abans del naixement
+          (monthDifference === 0 && today.getDate() < birthDate.getDate())
+        ) {
+          // En aquest cas, restem 1 any a l'edat calculada
+          return age - 1 >= 18;
+        }
+        // Si no cal ajustar, només comprovem si l'edat és igual o superior a 18
+        return age >= 18;
+      }
+
       document
         .getElementById('formulari')
         .addEventListener('submit', validateForm);
